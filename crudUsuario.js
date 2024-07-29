@@ -1,82 +1,100 @@
-const prompt = require("prompt-sync")();
+  const prompt = require("prompt-sync")();
 
+let nextUserId = 1;
 const usuarios = [];
-let ultimoID = 1;
+
 const lerIndice = (mensagem) => parseInt(prompt(mensagem));
 
-const nomeInvalido = (nome) => nome == "";
-const telefoneInvalido = (telefone) => telefone == "";
-const emailInvalido = (email) => email == "" && email == usuario.email;
+const nomeInvalido = (nome) => nome.trim() === "";
 
-const indiceInvalido = (ultimoID) =>
-  ultimoID < 0 || ultimoID >= usuarios.length || isNaN(ultimoID);
+const emailInvalido = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return !emailRegex.test(email.trim());
+};
+
+const emailDuplicado = (email) => {
+  return usuarios.some((usuario) => usuario.email === email.trim());
+};
+
+const idInvalido = (id) => {
+  return !usuarios.some((usuario) => usuario.id === id);
+};
 
 const listagem = () => {
-  usuarios.forEach((usuario, i) => {
-    console.log(
-      ` - ID : ${usuario.id}- NOME: ${usuario.nome} - EMAIL: ${usuario.email} - TELEFONE: ${usuario.telefone} }`
-    );
-  });
+  if (usuarios.length === 0) {
+    console.log("Nenhum usuário cadastrado.");
+  } else {
+    usuarios.forEach((usuario) => {
+      console.log(`${usuario.id} - ${usuario.nome} - ${usuario.email} - Telefones: ${usuario.telefones.join(', ')}`);
+    });
+  }
 };
 
 const modelo = () => {
-  let usuario = {}; // não posso adicionar atributos em algo indefinido
+  let usuario = { id: nextUserId++ }; // Inicializa o objeto usuário com um novo ID
 
   while (true) {
-    usuario.id = ultimoID;
-    ultimoID++;
-    usuario.nome = prompt("Qual é o nome do Usuario? ");
+    usuario.nome = prompt("Qual é o nome do Usuário? ").trim();
     if (nomeInvalido(usuario.nome)) {
       console.log("O nome não pode ser vazio");
     } else {
       break;
     }
   }
+
   while (true) {
-    usuario.email = prompt("Qual é o email do Usuario? ");
+    usuario.email = prompt("Qual é o e-mail do Usuário? ").trim();
     if (emailInvalido(usuario.email)) {
-      console.log("O nome não pode ser vazio ou já pode ter sido cadastrado");
+      console.log("E-mail inválido");
+    } else if (emailDuplicado(usuario.email)) {
+      console.log("E-mail já cadastrado");
     } else {
       break;
     }
   }
 
+  usuario.telefones = [];
   while (true) {
-    usuario.telefone = prompt("Qual é o telefone do Usuario? ");
-    if (telefoneInvalido(usuario.telefone)) {
-      console.log("O telefone não pode ser vazio ");
+    const telefone = prompt("Adicione um telefone (ou pressione Enter para parar): ").trim();
+    if (telefone === "") {
+      if (usuario.telefones.length === 0) {
+        console.log("É necessário adicionar pelo menos um telefone.");
+      } else {
+        break;
+      }
     } else {
-      break;
+      usuario.telefones.push(telefone);
     }
   }
+
   return usuario;
 };
 
 const criar = () => {
   const usuario = modelo();
-
   usuarios.push(usuario);
-
-  console.log("Usuario criado com sucesso");
+  console.log("Usuário criado com sucesso");
 };
 
 const atualizar = () => {
   while (true) {
     if (usuarios.length == 0) {
-      console.log("Lista de usuarios vazia");
+      console.log("Lista de usuários está vazia");
       break;
     }
 
     listagem();
 
-    const indice =
-      lerIndice("Qual é o índice do Usuario que deseja atualizar? ") - 1;
+    const id = lerIndice("Qual é o ID do Usuário que deseja atualizar? ");
 
-    if (indiceInvalido(id)) {
-      console.log("Índice inválido");
+    if (idInvalido(id)) {
+      console.log("ID inválido");
     } else {
-      const usuarios = modelo();
-      usuarios[id] = usuario;
+      const usuarioIndex = usuarios.findIndex((usuario) => usuario.id === id);
+      const usuarioAtualizado = modelo();
+      usuarioAtualizado.id = id; // Mantém o mesmo ID
+      usuarios[usuarioIndex] = usuarioAtualizado;
+      console.log("Usuário atualizado com sucesso");
       break;
     }
   }
@@ -84,15 +102,21 @@ const atualizar = () => {
 
 const remover = () => {
   while (true) {
+    if (usuarios.length == 0) {
+      console.log("Lista de usuários está vazia");
+      break;
+    }
+
     listagem();
 
-    const indice = lerIndice("Qual é o id do usuario que deseja remover? ") - 1;
+    const id = lerIndice("Qual é o ID do Usuário que deseja remover? ");
 
-    if (indiceInvalido(indice)) {
-      console.log("Índice inválido");
+    if (idInvalido(id)) {
+      console.log("ID inválido");
     } else {
-      usuarios.splice(indice, 1);
-      console.log("Usuario removido com sucesso");
+      const usuarioIndex = usuarios.findIndex((usuario) => usuario.id === id);
+      usuarios.splice(usuarioIndex, 1);
+      console.log("Usuário removido com sucesso");
       break;
     }
   }
@@ -103,4 +127,5 @@ module.exports = {
   atualizar,
   remover,
   listagem,
-};
+  usuarios
+};    
