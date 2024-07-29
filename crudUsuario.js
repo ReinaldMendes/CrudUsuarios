@@ -1,4 +1,4 @@
-  const prompt = require("prompt-sync")();
+const prompt = require("prompt-sync")();
 
 let nextUserId = 1;
 const usuarios = [];
@@ -25,7 +25,11 @@ const listagem = () => {
     console.log("Nenhum usuário cadastrado.");
   } else {
     usuarios.forEach((usuario) => {
-      console.log(`${usuario.id} - ${usuario.nome} - ${usuario.email} - Telefones: ${usuario.telefones.join(', ')}`);
+      console.log(
+        `${usuario.id} - ${usuario.nome} - ${
+          usuario.email
+        } - Telefones: ${usuario.telefones.join(", ")}`
+      );
     });
   }
 };
@@ -55,7 +59,9 @@ const modelo = () => {
 
   usuario.telefones = [];
   while (true) {
-    const telefone = prompt("Adicione um telefone (ou pressione Enter para parar): ").trim();
+    const telefone = prompt(
+      "Adicione um telefone (ou pressione Enter para parar): "
+    ).trim();
     if (telefone === "") {
       if (usuario.telefones.length === 0) {
         console.log("É necessário adicionar pelo menos um telefone.");
@@ -127,5 +133,4 @@ module.exports = {
   atualizar,
   remover,
   listagem,
-  usuarios
-};    
+};
